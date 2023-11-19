@@ -1,9 +1,9 @@
 use anyhow::Result;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -25,7 +25,7 @@ supports:
   platform: darwin
 */
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct InspecYml {
     name: String,
     title: String,
@@ -69,8 +69,16 @@ pub fn edit_inspec_yml(profiles_path: &PathBuf) -> Result<()>{
     let mut yml_path = PathBuf::from(profiles_path);
     yml_path.push("inspec.yml");
     // TODO: do this with serde
-    let yml: InspecYml = read_inspec_yml(&yml_path)?;
-    println!("{:?}", yml);
+    let mut yml: InspecYml = read_inspec_yml(&yml_path)?;
+    println!("Before: {:?}", yml);
+    yml.title = format!("{} Payload Profile", yml.name);
+    yml.maintainer = "nmcspadden".to_string();
+    yml.copyright = "nmcpadden".to_string();
+    yml.copyright_email = "nmcspadden@meta.com".to_string();
+    yml.summary = format!("Payload of {} package", yml.name);
+    yml.supports.insert("platform".to_string(), "darwin".to_string());
+    println!("After: {:?}", yml);
+    write_yml_to_disk(&yml_path, &yml)?;
     Ok(())
 }
 
@@ -92,4 +100,11 @@ fn read_inspec_yml(yml_path: &Path) -> Result<InspecYml> {
     file.read_to_string(&mut contents)?;
     let yml: InspecYml = serde_yaml::from_str(&contents)?;
     Ok(yml)
+}
+
+fn write_yml_to_disk(yml_path: &Path, yml: &InspecYml) -> Result<()> {
+    let mut file = File::create(yml_path)?;
+    let yml_string = serde_yaml::to_string(&yml)?;
+    file.write_all(yml_string.as_bytes())?;
+    Ok(())
 }
