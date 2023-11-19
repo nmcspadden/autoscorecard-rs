@@ -7,7 +7,7 @@
 use std::path::Path;
 
 // This was written for inspec 5.21.29+
-use autoscorecard_rs::{extract_contents, create_inspec_profile};
+use autoscorecard_rs::{extract_contents, create_inspec_profile, edit_inspec_yml};
 
 fn main() {
     let input = "/Users/nmcspadden/Downloads/AutoPkg-only-3.0.0RC2.pkg";
@@ -15,7 +15,8 @@ fn main() {
     println!("Loading up pkg file: {}", source.display());
 
     extract_contents(source);
-    create_inspec_profile(source.file_stem().unwrap());
+    let profiles_path = create_inspec_profile(source.file_stem().unwrap());
+    edit_inspec_yml(&profiles_path);
     /*
     1. extract_contents() - Determine type and extract archive/obtain BOM
     2. extract_<type>_payload() - extract archive/obtain BOM

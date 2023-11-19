@@ -141,9 +141,8 @@ pub fn extract_rpm_payload() {
 /*
     INSPEC FUNCTIONS
 */
-pub fn create_inspec_profile(name: &OsStr) {
+pub fn create_inspec_profile(name: &OsStr) -> PathBuf {
     // create the inspec init here
-    // TODO: do this
     // We know for sure this path is safe to unwrap because we validated it already on being passed in
     let output_path = format!("profiles/{}", name.to_str().unwrap());
     println!("Creating inspec profile at: {}", output_path);
@@ -158,10 +157,17 @@ pub fn create_inspec_profile(name: &OsStr) {
         println!("Failed to create inspec profile: {}", output.status);
         println!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
     }
+
+    // Return the path to the created profile
+    let canon = std::fs::canonicalize(&output_path).unwrap();
+    return PathBuf::from(canon);
 }
 
-pub fn edit_inspec_yml() {
+pub fn edit_inspec_yml(profiles_path: &PathBuf) {
     // edit the inspec.yml here
+    let mut yml_path = PathBuf::from(profiles_path);
+    yml_path.push("inspec.yml");
+    // TODO: do this with serde
 }
 
 pub fn edit_inspec_readme() {
