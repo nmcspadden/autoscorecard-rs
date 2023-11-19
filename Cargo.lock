@@ -103,9 +103,9 @@ dependencies = [
 
 [[package]]
 name = "apple-flat-package"
-version = "0.16.0"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "526386a41e234f0b693d4dc5e7ae33e6cee816d8ffb318526cc4ff995be4fbbf"
+checksum = "e307f4b044858680e0e21f25ac6b9eb48521287d32cb5330e1ff306f4287586e"
 dependencies = [
  "apple-xar",
  "cpio-archive",
@@ -118,9 +118,9 @@ dependencies = [
 
 [[package]]
 name = "apple-xar"
-version = "0.16.0"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc144cded63c6e3b7263416600dd3fc4e353c0be4de0fb3ceda886af6c115d1f"
+checksum = "19b3bfafd833f9660833a98d119f330e8efd2b882ed0928656c1d04edcb1f62c"
 dependencies = [
  "base64",
  "bcder",
@@ -161,6 +161,8 @@ dependencies = [
  "apple-flat-package",
  "clap",
  "dunce",
+ "serde",
+ "serde_yaml",
  "tokio",
  "tracing",
 ]
@@ -1104,6 +1106,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_yaml"
+version = "0.9.27"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3cc7a1570e38322cfe4154732e5110f887ea57e22b76f4bfd32b5bdd3368666c"
+dependencies = [
+ "indexmap",
+ "itoa",
+ "ryu",
+ "serde",
+ "unsafe-libyaml",
+]
+
+[[package]]
 name = "sha1"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1375,6 +1390,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "unsafe-libyaml"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f28467d3e1d3c6586d8f25fa243f544f5800fec42d97032474e17222c2b75cfa"
+
+[[package]]
 name = "untrusted"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1609,9 +1630,9 @@ dependencies = [
 
 [[package]]
 name = "x509-certificate"
-version = "0.23.0"
+version = "0.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1fe272476b03fc9255bd66e69133cb2238b3fa1e4668c4980bb718ab4992c31"
+checksum = "66534846dec7a11d7c50a74b7cdb208b9a581cad890b7866430d438455847c85"
 dependencies = [
  "bcder",
  "bytes",

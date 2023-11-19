@@ -8,8 +8,10 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 apple-bom = "0.2.0"
-apple-flat-package = "0.16.0"
+apple-flat-package = "0.17.0"
 clap = { version = "4.4.8", features = ["derive"] }
 dunce = "1.0.4"
 tokio = "1.34.0"
 tracing = "0.1.40"
+serde = "1.0"
+serde_yaml = "0.9.27"
