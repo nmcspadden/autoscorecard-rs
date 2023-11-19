@@ -88,6 +88,7 @@ pub fn edit_inspec_readme() {
 
 pub fn create_control() {
     // create the control for the payload files here
+    // TODO: do this
 }
 
 pub fn check_control() {
