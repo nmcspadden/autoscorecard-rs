@@ -4,11 +4,18 @@
 #![allow(unused_imports)]
 
 
+use std::path::Path;
+
 // This was written for inspec 5.21.29+
-use autoscorecard_rs::extract_contents;
+use autoscorecard_rs::{extract_contents, create_inspec_profile};
 
 fn main() {
-    extract_contents();
+    let input = "/Users/nmcspadden/Downloads/AutoPkg-only-3.0.0RC2.pkg";
+    let source = Path::new(input);
+    println!("Loading up pkg file: {}", source.display());
+
+    extract_contents(source);
+    create_inspec_profile(source.file_stem().unwrap());
     /*
     1. extract_contents() - Determine type and extract archive/obtain BOM
     2. extract_<type>_payload() - extract archive/obtain BOM

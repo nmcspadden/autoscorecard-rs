@@ -4,41 +4,32 @@
 #![allow(unused_imports)]
 
 use {
-    anyhow::{
-        Error,
-        Result,
-    },
-    apple_bom::{
-        BomPath,
-        ParsedBom,
-    },
-    apple_flat_package::{
-        ComponentPackageReader,
-        PkgReader,
-    },
+    anyhow::{Error, Result},
+    apple_bom::{BomPath, ParsedBom},
+    apple_flat_package::{ComponentPackageReader, PkgReader},
     std::{
+        ffi::OsStr,
         fmt::Debug,
         fs::File,
         io::{BufRead, Cursor, Read, Seek, SeekFrom, Write},
         path::{Path, PathBuf},
+        process::{Command, Stdio},
         time::Duration,
     },
 };
 
-pub fn extract_contents() {
+pub fn extract_contents(source: &Path) {
     // extract or examine payload from archive
-    let _ = extract_pkg_payload();
+    let _ = extract_pkg_payload(source);
 }
 
 /*
 
-Apple .pkg functions
+    APPLE .PKG FUNCTIONS
 
 */
-pub fn extract_pkg_payload() -> Result<Vec<PathBuf>> {
+pub fn extract_pkg_payload(source: &Path) -> Result<Vec<PathBuf>> {
     // extract payload from pkg file
-    let source = Path::new("/Users/nmcspadden/Downloads/AutoPkg-only-3.0.0RC2.pkg");
-    println!("Loading up pkg file: {}", source.display());
     let package: ComponentPackageReader = get_component_pkg_from_path(source)?;
 
     // Now that we have a package file validated, get the root install location
@@ -85,7 +76,9 @@ fn print_paths_short(bom_paths: Vec<BomPath>) {
     }
 }
 
-fn get_component_pkg_from_path(source: &Path) -> Result<apple_flat_package::ComponentPackageReader> {
+fn get_component_pkg_from_path(
+    source: &Path,
+) -> Result<apple_flat_package::ComponentPackageReader> {
     // for now, this only accepts a single component package
     // we'll have to figure out distribution packages later
     let mut reader: PkgReader<File> = PkgReader::new(File::open(source)?)?;
@@ -110,13 +103,15 @@ fn get_component_pkg_from_path(source: &Path) -> Result<apple_flat_package::Comp
     // let install_location = pkg_info.install_location.as_ref().unwrap();
     // println!("***Install location: {:?}", install_location);
     // let payload: &Option<apple_flat_package::package_info::Payload> = &package_info.unwrap().payload;
-    // println!("Payload: {:?}", payload.clone().unwrap());    
+    // println!("Payload: {:?}", payload.clone().unwrap());
     Ok(component_result)
 }
 
 fn get_install_location_from_component_pkg(pkg: &ComponentPackageReader) -> PathBuf {
     // Any properly formed Apple pkg should have a PkgInfo file; if not, we bail
-    let package_info = pkg.package_info().expect("The package is malformed and has no PkgInfo!");
+    let package_info = pkg
+        .package_info()
+        .expect("The package is malformed and has no PkgInfo!");
     println!("Package info: {:?}", package_info);
 
     // let install_location = package_info.install_location.as_ref().expect("PackageInfos must have an install location");
@@ -127,8 +122,8 @@ fn get_install_location_from_component_pkg(pkg: &ComponentPackageReader) -> Path
     println!("Install location: {:?}", install_location);
     // let payload: &Option<apple_flat_package::package_info::Payload> = &package_info.unwrap().payload;
     // println!("Payload: {:?}", payload.clone().unwrap());
-    
-    return PathBuf::from(install_location)
+
+    return PathBuf::from(install_location);
 }
 
 pub fn extract_zip_payload() {
@@ -143,8 +138,26 @@ pub fn extract_rpm_payload() {
     // extract payload from rpm file
 }
 
-pub fn create_inspec_profile() {
+/*
+    INSPEC FUNCTIONS
+*/
+pub fn create_inspec_profile(name: &OsStr) {
     // create the inspec init here
+    // TODO: do this
+    // We know for sure this path is safe to unwrap because we validated it already on being passed in
+    let output_path = format!("profiles/{}", name.to_str().unwrap());
+    println!("Creating inspec profile at: {}", output_path);
+    let output: std::process::Output = Command::new("/opt/inspec/bin/inspec")
+        .args(["init", "profile", &output_path])
+        .output()
+        .expect("Failed to execute inspec init");
+
+    if output.status.success() {
+        println!("Successfully created inspec profile");
+    } else {
+        println!("Failed to create inspec profile: {}", output.status);
+        println!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+    }
 }
 
 pub fn edit_inspec_yml() {
