@@ -3,6 +3,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
 
+use anyhow::Result;
 use std::path::Path;
 
 mod apple_pkg;
@@ -12,14 +13,14 @@ use crate::inspec::{create_inspec_profile, edit_inspec_yml};
 
 use autoscorecard_rs::extract_contents;
 
-fn main() {
+fn main() -> Result<()> {
     let input = "/Users/nmcspadden/Downloads/AutoPkg-only-3.0.0RC2.pkg";
     let source = Path::new(input);
     println!("Loading up pkg file: {}", source.display());
 
     extract_contents(source);
     let profiles_path = create_inspec_profile(source.file_stem().unwrap());
-    edit_inspec_yml(&profiles_path);
+    edit_inspec_yml(&profiles_path)?;
     /*
     1. extract_contents() - Determine type and extract archive/obtain BOM
     2. extract_<type>_payload() - extract archive/obtain BOM
@@ -29,6 +30,7 @@ fn main() {
     6. create_control() - create control with payload of files and modes
     7. check_control() - run inspec check on control
     */
+    Ok(())
 }
 
 #[cfg(test)]
