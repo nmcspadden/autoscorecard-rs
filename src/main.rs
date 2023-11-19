@@ -3,11 +3,14 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
 
-
 use std::path::Path;
 
-// This was written for inspec 5.21.29+
-use autoscorecard_rs::{extract_contents, create_inspec_profile, edit_inspec_yml};
+mod apple_pkg;
+mod inspec;
+
+use crate::inspec::{create_inspec_profile, edit_inspec_yml};
+
+use autoscorecard_rs::extract_contents;
 
 fn main() {
     let input = "/Users/nmcspadden/Downloads/AutoPkg-only-3.0.0RC2.pkg";
