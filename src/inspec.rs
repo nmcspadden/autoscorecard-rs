@@ -2,7 +2,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::fs::File;
+use std::fs::{File, self};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -58,6 +58,11 @@ pub fn create_inspec_profile(name: &OsStr) -> PathBuf {
         println!("Failed to create inspec profile: {}", output.status);
         println!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
     }
+
+    // Delete the example.rb
+    let mut example_path = PathBuf::from(&output_path);
+    example_path.push("controls/example.rb");
+    fs::remove_file(example_path).expect("Failed to remove example.rb");
 
     // Return the path to the created profile
     let canon = std::fs::canonicalize(&output_path).unwrap();
