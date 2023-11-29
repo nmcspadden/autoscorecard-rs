@@ -86,9 +86,31 @@ pub fn edit_inspec_readme() {
     // edit the inspec readme here
 }
 
-pub fn create_control() {
+pub fn create_control(title: &str, paths: &Vec<PathBuf>, profiles_path: &PathBuf) -> Result<()> {
+    // create the control text
+    let control_text = create_control_text(title, paths);
+    let mut control_path = PathBuf::from(profiles_path);
+    control_path.push(format!("controls/{}.rb", title));
+    write_inspec_test_to_disk(&control_path, &control_text)?;
+    Ok(())
+}
+
+fn create_control_text(title: &str, paths: &Vec<PathBuf>) -> String {
     // create the control for the payload files here
-    // TODO: do this
+    let title_str = format!("File Existence for {}", title);
+    let title_block = create_title_block(&title_str);
+    let mut file_string = String::new();
+    file_string.push_str(&title_block);
+    file_string.push_str("\n");
+    let control_block = create_control_slug(title);
+    file_string.push_str(&control_block);
+    // file_string.push_str("\n");
+    let files_block = create_describe_file_group_block(paths);
+    file_string.push_str(&files_block);
+    let ends = create_control_ends();
+    file_string.push_str(&ends);
+
+    return file_string
 }
 
 pub fn check_control() {
@@ -108,4 +130,94 @@ fn write_yml_to_disk(yml_path: &Path, yml: &InspecYml) -> Result<()> {
     let yml_string = serde_yaml::to_string(&yml)?;
     file.write_all(yml_string.as_bytes())?;
     Ok(())
+}
+
+fn write_inspec_test_to_disk(inspec_path: &Path, contents: &str) -> Result<()> {
+    // write the inspec test to disk
+    let mut file = File::create(inspec_path)?;
+    file.write_all(contents.as_bytes())?;
+    Ok(())
+}
+
+/* Specific Inspec tools */
+fn create_describe_file_exist_block(path: &Path) -> String {
+    // The given file should exist
+    return format!(
+        r#"
+describe file("{}") do
+    it {{ should exist }}
+end
+    "#,
+        path.display()
+    );
+}
+
+fn create_describe_file_is_dir_block(path: &Path) -> String {
+    // The given file should exist
+    return format!(
+        r#"
+    describe file("{}") do
+        it {{ should be_directory }}
+    end
+"#,
+        path.display()
+    );
+}
+
+fn create_describe_file_group_block(paths: &Vec<PathBuf>) -> String {
+    // The given file should exist
+    return format!(
+        r#"
+    files = [
+{}
+    ]
+    files.each do |file_path|
+        describe file(file_path) do
+            it {{ should exist }}
+        end
+    end
+"#,
+        create_file_groups(paths)
+    );
+}
+
+fn create_file_groups(paths: &Vec<PathBuf>) -> String {
+    let mut file_groups: Vec<String> = Vec::new();
+    for path in paths {
+        file_groups.push(format!("\t\t'{}',", path.display()));
+    }
+    return file_groups.join("\n")
+}
+
+fn create_title_block(title: &str) -> String {
+    // The given file should exist
+    return format!(
+        r#"
+title "{}"
+"#,
+        title
+    );
+}
+
+fn create_control_slug(title: &str) -> String {
+    // only the intro of the control block here
+    return format!(
+        r#"
+control "Informational test: {}" do
+    impact 0.0
+    title '{}'
+    desc 'Check for existence of all files in a package'
+"#,
+        title,
+        title,
+    );
+}
+
+fn create_control_ends() -> String {
+    // only the intro of the control block here
+    return format!(
+        r#"
+end
+"#,
+    );
 }

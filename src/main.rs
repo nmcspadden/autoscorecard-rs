@@ -9,7 +9,7 @@ use std::path::Path;
 mod apple_pkg;
 mod inspec;
 
-use crate::inspec::{create_inspec_profile, edit_inspec_yml};
+use crate::inspec::{create_inspec_profile, edit_inspec_yml, create_control};
 
 use autoscorecard_rs::extract_contents;
 
@@ -18,9 +18,11 @@ fn main() -> Result<()> {
     let source = Path::new(input);
     println!("Loading up pkg file: {}", source.display());
 
-    extract_contents(source);
+    let paths = extract_contents(source)?;
     let profiles_path = create_inspec_profile(source.file_stem().unwrap());
     edit_inspec_yml(&profiles_path)?;
+
+    let file_contents = create_control(&source.file_stem().unwrap().to_string_lossy(), &paths, &profiles_path);
     /*
     1. extract_contents() - Determine type and extract archive/obtain BOM
     2. extract_<type>_payload() - extract archive/obtain BOM

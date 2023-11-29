@@ -20,13 +20,14 @@
 
 mod apple_pkg;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use anyhow::Result;
 
 use crate::apple_pkg::extract_pkg_payload;
 
-pub fn extract_contents(source: &Path) {
+pub fn extract_contents(source: &Path) -> Result<Vec<PathBuf>>{
     // extract or examine payload from archive
-    let _ = extract_pkg_payload(source);
+    return Ok(extract_pkg_payload(source)?)
 }
 
 pub fn extract_zip_payload() {
